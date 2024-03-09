@@ -136,19 +136,20 @@ public class SoundListener implements Listener {
             Method getTypeMethod = nmsWorld.getClass().getMethod("getType", blockPositionClass);
             getTypeMethod.setAccessible(true);
 
-            Object blockData = getTypeMethod.invoke(nmsWorld, blockPosition);
+            Object blockData = nmsWorld.getClass().getSuperclass().getMethod("getType", blockPositionClass).invoke(nmsWorld, blockPosition);
             Method getBlock = blockData.getClass().getMethod("getBlock");
             getBlock.setAccessible(true);
-
             Object nmsBlock = getBlock.invoke(blockData);
-            Method getStepSound = ReflectionAPI.pickMethod(
-                    nmsBlock.getClass(),
-                    new MethodSignature("w"), // 1.9 -> 1.10
-                    new MethodSignature("getStepSound", blockData.getClass()), // 1.14 -> 1.16
-                    new MethodSignature("getStepSound") // 1.11 -> 1.12
-            );
-            getStepSound.setAccessible(true);
-
+            Method getStepSound;
+            try {
+                getStepSound = nmsBlock.getClass().getMethod("getStepSound", blockData.getClass());
+            } catch (NoSuchMethodException ex) {
+                try {
+                    getStepSound = nmsBlock.getClass().getMethod("getStepSound");
+                } catch (NoSuchMethodException ex2) {
+                    getStepSound = nmsBlock.getClass().getMethod("w");
+                }
+            }
             Object soundType;
             if (getStepSound.getParameterCount() == 0) {
                 soundType = getStepSound.invoke(nmsBlock); // 1.9 -> 1.13
