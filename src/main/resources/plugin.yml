@@ -1,4 +1,4 @@
-name: ViaRewind-Legacy-Support
+name: ViaRewind-Legacy-Support-MercurioMC
 version: ${version}
 main: com.viaversion.viarewind.legacysupport.BukkitPlugin
 api-version: 1.13
